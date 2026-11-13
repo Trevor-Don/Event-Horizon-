@@ -1,0 +1,51 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the application",
+      "type": "object",
+      "properties": {
+        "preferences": {
+          "type": "object",
+          "description": "User preferences for news categories"
+        }
+      }
+    },
+    "SavedEvent": {
+      "title": "SavedEvent",
+      "description": "A news event saved by the user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "headline": { "type": "string", "maxLength": 500 },
+        "summary": { "type": "string", "maxLength": 2000 },
+        "fullRawData": { "type": "string", "maxLength": 10000 },
+        "impactScore": { "type": "number" },
+        "timeSensitivity": { "type": "string" },
+        "category": { "type": "string" },
+        "location": { "type": "string" },
+        "sources": { 
+          "type": "array"
+        },
+        "timestamp": { "type": "string" },
+        "reasoning": { "type": "string" },
+        "truthScore": { "type": "number" },
+        "biasAnalysis": { "type": "string" },
+        "isClickbaitOrPropaganda": { "type": "boolean" },
+        "clickbaitWarning": { "type": "string" },
+        "readTimeMs": { "type": "number" }
+      },
+      "required": ["id", "headline", "summary"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles"
+    },
+    "users/{userId}/savedEvents/{eventId}": {
+      "schema": { "$ref": "#/entities/SavedEvent" },
+      "description": "Saved events for a user"
+    }
+  }
+}

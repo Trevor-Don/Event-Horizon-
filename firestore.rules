@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isSignedIn() { return request.auth != null && request.auth.token.email_verified == true; }
+
+    function isValidUser(data) {
+       return data.keys().size() == 0 || (data.keys().hasOnly(['preferences']) && data.preferences is map);
+    }
+    
+    match /users/{userId} {
+       allow get: if isSignedIn() && request.auth.uid == userId;
+       allow list: if isSignedIn() && request.auth.uid == userId;
+       
+       allow create: if isSignedIn() 
+           && request.auth.uid == userId 
+           && isValidId(userId)
+           && isValidUser(incoming());
+           
+       allow update: if isSignedIn() 
+           && request.auth.uid == userId
+           && isValidUser(incoming());
+           
+       allow delete: if false;
+       
+       match /savedEvents/{eventId} {
+           function isValidSavedEvent(data) {
+               return data.keys().hasAll(['id', 'headline', 'summary'])
+                  && data.id is string && data.id.size() <= 128 && data.id.matches('^[a-zA-Z0-9_\\-]+$')
+                  && data.headline is string && data.headline.size() <= 500
+                  && data.summary is string && data.summary.size() <= 2000
+                  && (!('fullRawData' in data) || (data.fullRawData is string && data.fullRawData.size() <= 10000))
+                  && (!('impactScore' in data) || data.impactScore is number)
+                  && (!('timeSensitivity' in data) || data.timeSensitivity is string)
+                  && (!('category' in data) || data.category is string)
+                  && (!('location' in data) || data.location is string)
+                  && (!('sources' in data) || (data.sources is list && data.sources.size() <= 20))
+                  && (!('timestamp' in data) || data.timestamp is string)
+                  && (!('reasoning' in data) || data.reasoning is string)
+                  && (!('truthScore' in data) || data.truthScore is number)
+                  && (!('biasAnalysis' in data) || data.biasAnalysis is string)
+                  && (!('isClickbaitOrPropaganda' in data) || data.isClickbaitOrPropaganda is bool)
+                  && (!('clickbaitWarning' in data) || data.clickbaitWarning is string)
+                  && (!('readTimeMs' in data) || data.readTimeMs is number);
+           }
+           
+           allow get: if isSignedIn() && request.auth.uid == userId;
+           allow list: if isSignedIn() && request.auth.uid == userId;
+           
+           allow create: if isSignedIn() 
+              && request.auth.uid == userId
+              && isValidId(eventId)
+              && isValidSavedEvent(incoming())
+              && exists(/databases/$(database)/documents/users/$(userId));
+              
+           allow update: if isSignedIn()
+              && request.auth.uid == userId
+              && isValidSavedEvent(incoming());
+              
+           allow delete: if isSignedIn() && request.auth.uid == userId;
+       }
+    }
+  }
+}

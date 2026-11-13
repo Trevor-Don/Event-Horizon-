@@ -1,0 +1,6 @@
+- [x] Integrate Firebase Auth (Google Sign In)
+- [x] Persist `savedEvents` to Firestore
+- [x] Persist `eh_user_prefs` (userPreferences) to Firestore
+- [x] Implement hardened `firestore.rules` for data integrity
+- [x] Enable Firestore offline persistence for offline access to saved articles.
+- [x] Add download-to-file capability for articles.

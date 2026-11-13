@@ -1,0 +1,2 @@
+- Use Firestore to back `savedEvents` and `userPreferences`, providing offline persistence combined with cross-device sync when signed in. 
+- Using standard Google Auth Provider popup for sign-in mechanism to avoid redirect loop issues in preview.

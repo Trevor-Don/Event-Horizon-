@@ -1,0 +1,10 @@
+{
+  "name": "Event Horizon",
+  "description": "A structured knowledge news system optimizing for relevance per unit time using Gemini AI projections.",
+  "requestFramePermissions": [
+    "geolocation", "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
